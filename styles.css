@@ -194,11 +194,16 @@ input:focus-within {
   min-height: 300px;
   max-height: 300px;
   margin-top: 2rem;
-  margin-bottom: 2.5rem;
   border-top: 1px solid rgba(55, 53, 47, 0.09);
   border-bottom: 1px solid rgba(55, 53, 47, 0.09);
 
   overflow: auto;
+
+  mask-image: linear-gradient(
+    to bottom,
+    black 94%,
+    transparent 100%
+  );
 }
 
 /* View Screen */
@@ -317,4 +322,32 @@ input:focus-within {
 
 .icon-btn[data-action="delete"]:hover i {
   color: #bc1c2c;
+}
+
+.pagination {
+  padding-top: 20px;
+  border-top: 1px solid rgba(55, 53, 47, 0.09);
+  margin-top: 1rem;
+  margin-bottom: 2.5rem;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #333;
+  color: #fff;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

@@ -112,6 +112,81 @@ function loadContactsList() {
 	});
 }
 
+// Pagination state
+let currentPage = 1;
+const ITEMS_PER_PAGE = 5;
+
+function loadContactsList() {
+    const list = document.getElementById('contacts-list');
+    const empty = document.getElementById('empty-message');
+    const search = document.getElementById('search-input')?.value.toLowerCase() || "";
+    let contacts = getContacts();
+
+    list.innerHTML = '';
+
+    // Filter by search
+    contacts = contacts.filter(contact =>
+        contact.name.toLowerCase().includes(search)
+    );
+
+    // If nothing found
+    if (contacts.length === 0) {
+        empty.style.display = 'block';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+    } else {
+        empty.style.display = 'none';
+    }
+
+    // --- PAGINATION CALCULATIONS ---
+    const totalItems = contacts.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedContacts = contacts.slice(start, start + ITEMS_PER_PAGE);
+
+    // Render the paginated cards
+    paginatedContacts.forEach((contact, index) => {
+        const realIndex = start + index; // Correct index in full list
+
+        const card = document.createElement('div');
+        card.className = 'contact-card';
+        card.innerHTML = `
+            <p id="contact-name"><strong>${contact.name}</strong></p>
+            <div class="contact-card-actions">
+                <button class="icon-btn" data-action="view" aria-label="View contact"><i class="icon-eye"></i></button>
+                <button class="icon-btn" data-action="edit" aria-label="Edit contact"><i class="icon-pencil"></i></button>
+                <button class="icon-btn" data-action="delete" aria-label="Delete contact"><i class="icon-trash"></i></button>
+            </div>
+        `;
+
+        const viewBtn = card.querySelector('[data-action="view"]');
+        const editBtn = card.querySelector('[data-action="edit"]');
+        const deleteBtn = card.querySelector('[data-action="delete"]');
+
+        viewBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            location.href = `view.html?id=${realIndex}`;
+        });
+
+        editBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            location.href = `form.html?edit=${realIndex}`;
+        });
+
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteContact(realIndex);
+        });
+
+        list.appendChild(card);
+    });
+
+    renderPagination(totalItems);
+}
+
 function deleteContact(index) {
   const contacts = getContacts();
   if (index < 0 || index >= contacts.length) return;
@@ -153,3 +228,34 @@ document.addEventListener('DOMContentLoaded', () => {
       closeModal();
     };
 });
+
+function renderPagination(totalItems) {
+    const pagination = document.getElementById('pagination');
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+    pagination.innerHTML = '';
+
+    if (totalPages <= 1) return;
+
+    // Prev
+    pagination.innerHTML += `
+        <button ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">Prev</button>
+    `;
+
+    // Page Numbers
+    for (let p = 1; p <= totalPages; p++) {
+        pagination.innerHTML += `
+            <button class="${p === currentPage ? 'active' : ''}" onclick="changePage(${p})">${p}</button>
+        `;
+    }
+
+    // Next
+    pagination.innerHTML += `
+        <button ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next</button>
+    `;
+}
+
+function changePage(page) {
+    currentPage = page;
+    loadContactsList();
+}
