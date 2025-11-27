@@ -21,11 +21,10 @@
         oninput="loadContactsList()"
       />
       <div id="contacts-list"></div>
-      <div id="pagination" class="pagination"></div>
-      <div id="empty-message"
-        style="display:none; text-align:center; margin:20px; color:#555;">
+      <div id="empty-message">
         No contacts yet. Start adding contacts!
       </div>
+      <div id="pagination" class="pagination"></div>
       <button class="btn btn-primary" onclick="location.href='form.html'">Add
         New Contact</button>
     </div>
@@ -41,7 +40,7 @@
 
     <script src="main.js"></script>
     <script>
-    loadContactsList();
-  </script>
+      loadContactsList();
+    </script>
   </body>
 </html>

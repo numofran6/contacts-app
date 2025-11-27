@@ -14,7 +14,7 @@
   <body>
     <div class="container view-contact">
       <button class="btn btn-secondary" onclick="location.href='index.html'">
-        <i class="icon-angle-double-left"></i> 
+        <i class="icon-angle-double-left"></i>
         <span>Back to Contacts</span>
       </button>
       <div id="contact-details"></div>
@@ -23,13 +23,13 @@
 
     <script src="main.js"></script>
     <script>
-    const params = new URLSearchParams(location.search);
-    const index = params.get('id');
+      const params = new URLSearchParams(location.search);
+      const index = params.get('id');
 
-    loadContactDetails(index);
-    document.getElementById('edit-btn').onclick = () => {
-      location.href = 'form.html?edit=' + index;
-    };
-  </script>
+      loadContactDetails(index);
+      document.getElementById('edit-btn').onclick = () => {
+        location.href = 'form.html?edit=' + index;
+      };
+    </script>
   </body>
 </html>

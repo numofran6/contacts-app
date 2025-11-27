@@ -42,12 +42,51 @@ function setupForm(editIndex) {
 		};
 	}
 
-	document.getElementById('contact-form').onsubmit = (e) => {
+	const form = document.getElementById('contact-form');
+	const saveBtn = form.querySelector('button[type="submit"]');
+
+	// --- Validation setup ---
+	const inputs = [
+		{ el: document.getElementById('name'), validator: val => val.length >= 2, message: 'Name must be at least 2 characters.' },
+		{ el: document.getElementById('phone'), validator: val => /^\+?\d{6,15}$/.test(val), message: 'Phone must be digits only (6-15), optionally starting with +.' },
+		{ el: document.getElementById('email'), validator: val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val), message: 'Please enter a valid email address.' },
+	];
+
+	// Real-time validation
+	inputs.forEach(input => {
+		input.el.addEventListener('input', () => validateField(input));
+	});
+
+	function validateField(inputObj) {
+		const { el, validator, message } = inputObj;
+		const errorEl = el.parentElement.querySelector('.error-msg');
+		if (!validator(el.value.trim())) {
+			el.classList.add('invalid');
+			errorEl.textContent = message;
+		} else {
+			el.classList.remove('invalid');
+			errorEl.textContent = '';
+		}
+		validateForm();
+	}
+
+	function validateForm() {
+		const isValid = inputs.every(i => i.validator(i.el.value.trim()));
+		saveBtn.disabled = !isValid;
+	}
+
+	// Initial validation
+	validateForm();
+
+	// On submit
+	form.onsubmit = (e) => {
 		e.preventDefault();
+		if (inputs.some(i => !i.validator(i.el.value.trim()))) return;
+
 		const contact = {
-			name: document.getElementById('name').value,
-			phone: document.getElementById('phone').value,
-			email: document.getElementById('email').value,
+			name: document.getElementById('name').value.trim(),
+			phone: document.getElementById('phone').value.trim(),
+			email: document.getElementById('email').value.trim(),
 		};
 
 		const contacts = getContacts();
@@ -132,7 +171,8 @@ function loadContactsList() {
     // If nothing found
     if (contacts.length === 0) {
         empty.style.display = 'block';
-        document.getElementById('pagination').innerHTML = '';
+        list.style.display = 'none';
+        document.getElementById('pagination').style.display = 'none';
         return;
     } else {
         empty.style.display = 'none';

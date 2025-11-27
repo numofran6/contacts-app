@@ -244,6 +244,7 @@ input:focus-within {
 #contact-form .form-control label {
   font-size: 0.875rem;
   font-weight: bold;
+
   cursor: pointer;
 }
 
@@ -269,22 +270,24 @@ input:focus-within {
 }
 
 /* Modal */
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
+.modal-overlay {  
   display: flex;
   justify-content: center;
   align-items: center;
+  
+  position: fixed;
+  inset: 0;
   z-index: 999;
+  
+  background: rgba(0,0,0,0.45);
 }
 
 .modal-box {
   background: #fff;
-  padding: 22px;
+
   width: 90%;
   max-width: 350px;
+  padding: 22px;
   border-radius: 8px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.25);
 }
@@ -301,14 +304,16 @@ input:focus-within {
 }
 
 .icon-btn {
-  background: 0;
-  width: 30px;
-  height: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
+  
+  width: 30px;
+  height: 30px;
   border-radius: 100px;
-
+  
+  background: 0;
+  
   transition: all 0.2s ease-in-out;
 }
 
@@ -325,29 +330,53 @@ input:focus-within {
 }
 
 .pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  
   padding-top: 20px;
-  border-top: 1px solid rgba(55, 53, 47, 0.09);
   margin-top: 1rem;
   margin-bottom: 2.5rem;
-  display: flex;
-  gap: 8px;
-  justify-content: center;
+  border-top: 1px solid rgba(55, 53, 47, 0.09);
 }
 
 .pagination button {
   padding: 6px 12px;
   border: 1px solid #ccc;
-  background: white;
   border-radius: 6px;
+
+  background: white;
+
   cursor: pointer;
 }
 
 .pagination button.active {
-  background: #333;
   color: #fff;
+  background: #333;
 }
 
 .pagination button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.error-msg {
+  display: block;
+  
+  margin-top: 4px;
+  
+  font-size: 0.8rem;
+  color: #dc3545;
+}
+
+input.invalid {
+  border: 2px solid #dc3545;
+}
+
+#empty-message {
+  display:none; 
+
+  text-align:center; 
+  
+  margin: 4rem;
 }
