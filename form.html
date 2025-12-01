@@ -2,19 +2,33 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+
+    <!-- Ensures proper scaling on mobile and desktop -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Contact Form</title>
+
+    <!-- Load Inter font from Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
       rel="stylesheet">
+
+    <!-- Load main stylesheet -->
     <link rel="stylesheet" href="styles.css">
   </head>
+
   <body>
     <div class="container">
+
+      <!-- Page header (updates to "Edit Contact" when in edit mode) -->
       <header id="form-title">Add Contact</header>
+
+      <!-- Main contact form -->
       <form id="contact-form">
+
+        <!-- Full Name field -->
         <div class="form-control">
           <label for="name">Full Name</label>
           <div class="input-container">
@@ -23,6 +37,8 @@
             <span class="error-msg"></span>
           </div>
         </div>
+
+        <!-- Phone Number field -->
         <div class="form-control">
           <label for="phone">Phone</label>
           <div class="input-container">
@@ -31,6 +47,8 @@
             <span class="error-msg"></span>
           </div>
         </div>
+
+        <!-- Email Address field -->
         <div class="form-control">
           <label for="email">Email Address</label>
           <div class="input-container">
@@ -39,21 +57,38 @@
             <span class="error-msg"></span>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary"><i class="icon-save"></i>
-          <span>Save</span></button>
+
+        <!-- Save button for submitting form -->
+        <button type="submit" class="btn btn-primary">
+          <i class="icon-save"></i>
+          <span>Save</span>
+        </button>
       </form>
+
+      <!-- Cancel and Delete Actions -->
       <div class="actions">
+
+        <!-- Cancel button: return to contacts list -->
         <button type="button" class="btn text-btn"
-          onclick="location.href='index.html'"><i class="icon-close"></i>
-          <span>Cancel</span></button>
+          onclick="location.href='index.html'">
+          <i class="icon-close"></i>
+          <span>Cancel</span>
+        </button>
+
+        <!-- Delete button (visible only in edit mode) -->
         <button type="button" id="delete-btn" class="btn btn-danger"
-          style="display:none;"><i class="icon-trash"></i>
-          <span>Delete</span></button>
+          style="display:none;">
+          <i class="icon-trash"></i>
+          <span>Delete</span>
+        </button>
       </div>
     </div>
+
+    <!-- Confirmation modal (reused for delete action) -->
     <div id="confirm-modal" class="modal-overlay" style="display:none;">
       <div class="modal-box">
         <p id="modal-message">Are you sure?</p>
+
         <div class="modal-actions">
           <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
           <button id="modal-confirm" class="btn btn-danger">Delete</button>
@@ -61,10 +96,15 @@
       </div>
     </div>
 
+    <!-- Load main script. -->
     <script src="main.js"></script>
+
     <script>
+      // Check if this form is in edit mode (URL contains ?edit=ID)
       const params = new URLSearchParams(location.search);
       const editIndex = params.get('edit');
+
+      // Initialize form: load data if editing, set up event handlers
       setupForm(editIndex);
     </script>
   </body>

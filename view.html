@@ -2,31 +2,52 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+
+    <!-- Ensures proper scaling on all devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>View Contact</title>
+
+    <!-- Load Inter font from Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
       rel="stylesheet">
+
+    <!-- Load main stylesheet -->
     <link rel="stylesheet" href="styles.css">
   </head>
+
   <body>
+    <!-- Page container for viewing a single contact's details -->
     <div class="container view-contact">
+
+      <!-- Back button: navigates back to contacts list -->
       <button class="btn btn-secondary" onclick="location.href='index.html'">
         <i class="icon-angle-double-left"></i>
         <span>Back to Contacts</span>
       </button>
+
+      <!-- Contact information will be inserted here dynamically -->
       <div id="contact-details"></div>
+
+      <!-- Edit button: redirects to form pre-filled with contact data -->
       <button id="edit-btn" class="btn btn-primary">Edit Contact</button>
     </div>
 
+    <!-- Load main stylesheet -->
     <script src="main.js"></script>
+
     <script>
+      // Extract contact id from URL query parameter
       const params = new URLSearchParams(location.search);
       const index = params.get('id');
 
+      // Load the selected contact's details into the page
       loadContactDetails(index);
+
+      // When user clicks "Edit", redirect to form with edit mode enabled
       document.getElementById('edit-btn').onclick = () => {
         location.href = 'form.html?edit=' + index;
       };
