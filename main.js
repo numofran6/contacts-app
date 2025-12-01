@@ -2,7 +2,12 @@
  * STORAGE UTILITIES
  */
 function getContacts() {
-    return JSON.parse(localStorage.getItem("contacts") || "[]");
+    const raw = localStorage.getItem("contacts");
+    try {
+        return JSON.parse(raw) || [];
+    } catch {
+        return [];
+    }
 }
 
 function saveContacts(list) {
@@ -11,16 +16,43 @@ function saveContacts(list) {
 
 
 /**
- * VIEW PAGE — LOAD INDIVIDUAL CONTACT
+ * SECURITY — SANITIZE USER INPUT TO PREVENT HTML INJECTION
+ */
+function sanitize(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+
+/**
+ * SORT CONTACTS ALPHABETICALLY
+ */
+function getSortedContacts(search = "") {
+    const query = search.toLowerCase();
+    return getContacts()
+        .filter(c => c.name.toLowerCase().includes(query))
+        .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+
+/**
+ * VIEW SINGLE CONTACT PAGE
  */
 function loadContactDetails(index) {
-    const contact = getContacts()[index];
+    const contacts = getContacts();
+    const contact = contacts[index];
     const container = document.getElementById("contact-details");
 
+    if (!contact) {
+        container.innerHTML = "<p>Contact not found.</p>";
+        return;
+    }
+
     container.innerHTML = `
-        <header><strong>${contact.name}</strong></header>
-        <p><i class="icon-phone"></i> <span>${contact.phone}</span></p>
-        <p><i class="icon-envelope"></i> <span>${contact.email}</span></p>
+        <header><strong>${sanitize(contact.name)}</strong></header>
+        <p><i class="icon-phone"></i> <span>${sanitize(contact.phone)}</span></p>
+        <p><i class="icon-envelope"></i> <span>${sanitize(contact.email)}</span></p>
     `;
 }
 
@@ -29,90 +61,110 @@ function loadContactDetails(index) {
  * CONTACT FORM (ADD / EDIT)
  */
 function setupForm(editIndex) {
-    const title = document.getElementById("form-title");
-    const deleteBtn = document.getElementById("delete-btn");
     const form = document.getElementById("contact-form");
+    const deleteBtn = document.getElementById("delete-btn");
+    const title = document.getElementById("form-title");
     const saveBtn = form.querySelector('button[type="submit"]');
 
-    /**
-     * Load Contact for Editing
-     */
+    let editingContact = null;
+
     if (editIndex !== null) {
-        const contact = getContacts()[editIndex];
+        const contacts = getContacts();
+        editingContact = contacts[editIndex];
+
         title.textContent = "Edit Contact";
 
-        document.getElementById("name").value = contact.name;
-        document.getElementById("phone").value = contact.phone;
-        document.getElementById("email").value = contact.email;
+        document.getElementById("name").value = editingContact.name;
+        document.getElementById("phone").value = editingContact.phone;
+        document.getElementById("email").value = editingContact.email;
 
         deleteBtn.style.display = "block";
-        deleteBtn.onclick = () =>
-            showModal(`Are you sure you want to delete “${contact.name}”?`, () => {
-                const contacts = getContacts();
+        deleteBtn.onclick = () => {
+            showModal(`Delete "${editingContact.name}"?`, () => {
                 contacts.splice(editIndex, 1);
                 saveContacts(contacts);
                 location.href = "index.html";
             });
+        };
     }
 
     /**
-     * Validation Setup
+     * VALIDATION RULES
      */
-    const inputs = [
+    const fields = [
         {
-            el: document.getElementById("name"),
-            validator: val => val.length >= 2,
-            message: "Name must be at least 2 characters."
+            element: document.getElementById("name"),
+            validate: v => /^[A-Za-z\s]{2,50}$/.test(v),
+            message: "Name must contain only letters and spaces (2–50 chars)."
         },
         {
-            el: document.getElementById("phone"),
-            validator: val => /^\+?\d{6,15}$/.test(val),
-            message: "Phone must be digits only (6–15), optionally starting with +."
+            element: document.getElementById("phone"),
+            validate: v => /^\+?\d[\d\s]{5,14}$/.test(v),
+            message: "Phone must be 6–15 digits, spaces allowed."
         },
         {
-            el: document.getElementById("email"),
-            validator: val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
-            message: "Please enter a valid email address."
+            element: document.getElementById("email"),
+            validate: v =>
+                /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(v),
+            message: "Invalid email format."
         }
     ];
 
-    inputs.forEach(inputObj =>
-        inputObj.el.addEventListener("input", () => validateField(inputObj))
-    );
+    fields.forEach(f => {
+        f.element.addEventListener("input", () => validateField(f));
+    });
 
-    function validateField({ el, validator, message }) {
-        const errorEl = el.parentElement.querySelector(".error-msg");
-        const valid = validator(el.value.trim());
+    function validateField({ element, validate, message }) {
+        const error = element.parentElement.querySelector(".error-msg");
+        const value = element.value.trim();
+        const valid = validate(value);
 
-        el.classList.toggle("invalid", !valid);
-        errorEl.textContent = valid ? "" : message;
+        element.classList.toggle("invalid", !valid);
+        error.textContent = valid ? "" : message;
 
         validateForm();
     }
 
     function validateForm() {
-        const isValid = inputs.every(i => i.validator(i.el.value.trim()));
-        saveBtn.disabled = !isValid;
+        const valid = fields.every(f => f.validate(f.element.value.trim()));
+        saveBtn.disabled = !valid;
     }
 
     validateForm();
 
+
     /**
-     * Submit Handler
+     * FORM SUBMISSION
      */
-    form.onsubmit = e => {
-        e.preventDefault();
-        if (inputs.some(i => !i.validator(i.el.value.trim()))) return;
+    form.onsubmit = event => {
+        event.preventDefault();
+        if (saveBtn.disabled) return;
 
         const newContact = {
-            name: document.getElementById("name").value.trim(),
-            phone: document.getElementById("phone").value.trim(),
-            email: document.getElementById("email").value.trim()
+            name: sanitize(document.getElementById("name").value.trim()),
+            phone: sanitize(document.getElementById("phone").value.trim()),
+            email: sanitize(document.getElementById("email").value.trim())
         };
 
         const contacts = getContacts();
-        if (editIndex !== null) contacts[editIndex] = newContact;
-        else contacts.push(newContact);
+
+        // Prevent duplicates
+        const duplicate = contacts.some(
+            (contact, index) =>
+                index !== parseInt(editIndex) &&
+                (contact.email === newContact.email || contact.phone === newContact.phone)
+        );
+
+        if (duplicate) {
+            showModal("A contact with this email or phone already exists.");
+            return;
+        }
+
+        if (editIndex !== null) {
+            contacts[editIndex] = newContact;
+        } else {
+            contacts.push(newContact);
+        }
 
         saveContacts(contacts);
         location.href = "index.html";
@@ -129,11 +181,10 @@ const ITEMS_PER_PAGE = 5;
 function loadContactsList() {
     const list = document.getElementById("contacts-list");
     const empty = document.getElementById("empty-message");
-    const search = (document.getElementById("search-input")?.value || "").toLowerCase();
+    const searchInput = document.getElementById("search-input");
+    const search = searchInput ? searchInput.value : "";
 
-    let contacts = getContacts().filter(contact =>
-        contact.name.toLowerCase().includes(search)
-    );
+    const contacts = getSortedContacts(search);
 
     list.innerHTML = "";
 
@@ -142,32 +193,24 @@ function loadContactsList() {
         list.style.display = "none";
         document.getElementById("pagination").style.display = "none";
         return;
-    } else {
-        empty.style.display = "none";
-        list.style.display = "";
     }
 
-    /**
-     * Pagination Logic
-     */
-    const totalItems = contacts.length;
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    empty.style.display = "none";
+    list.style.display = "block";
 
-    if (currentPage > totalPages) currentPage = totalPages;
+    const totalPages = Math.ceil(contacts.length / ITEMS_PER_PAGE);
+    currentPage = Math.min(currentPage, totalPages);
 
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const pageItems = contacts.slice(start, start + ITEMS_PER_PAGE);
 
-    /**
-     * Render Contact Cards
-     */
-    pageItems.forEach((contact, i) => {
-        const realIndex = start + i;
+    pageItems.forEach((contact, offset) => {
+        const actualIndex = start + offset;
 
         const card = document.createElement("div");
         card.className = "contact-card";
         card.innerHTML = `
-            <p id="contact-name"><strong>${contact.name}</strong></p>
+            <p id="contact-name"><strong>${sanitize(contact.name)}</strong></p>
             <div class="contact-card-actions">
                 <button class="icon-btn" data-action="view"><i class="icon-eye"></i></button>
                 <button class="icon-btn" data-action="edit"><i class="icon-pencil"></i></button>
@@ -175,24 +218,21 @@ function loadContactsList() {
             </div>
         `;
 
-        card.querySelector('[data-action="view"]').onclick = e => {
-            e.stopPropagation();
-            location.href = `view.html?id=${realIndex}`;
-        };
-        card.querySelector('[data-action="edit"]').onclick = e => {
-            e.stopPropagation();
-            location.href = `form.html?edit=${realIndex}`;
-        };
-        card.querySelector('[data-action="delete"]').onclick = e => {
-            e.stopPropagation();
-            deleteContact(realIndex);
-        };
+        card.querySelector('[data-action="view"]').onclick = () =>
+            (location.href = `view.html?id=${actualIndex}`);
+
+        card.querySelector('[data-action="edit"]').onclick = () =>
+            (location.href = `form.html?edit=${actualIndex}`);
+
+        card.querySelector('[data-action="delete"]').onclick = () =>
+            deleteContact(actualIndex);
 
         list.appendChild(card);
     });
 
-    renderPagination(totalItems);
+    renderPagination(contacts.length);
 }
+
 
 function changePage(page) {
     currentPage = page;
@@ -201,13 +241,13 @@ function changePage(page) {
 
 
 /**
- * DELETE CONTACT (Via Modal)
+ * DELETE CONTACT
  */
 function deleteContact(index) {
     const contacts = getContacts();
     if (!contacts[index]) return;
 
-    showModal(`Are you sure you want to delete “${contacts[index].name}”?`, () => {
+    showModal(`Delete "${contacts[index].name}"?`, () => {
         contacts.splice(index, 1);
         saveContacts(contacts);
         loadContactsList();
@@ -220,7 +260,7 @@ function deleteContact(index) {
  */
 let modalCallback = null;
 
-function showModal(message, callback) {
+function showModal(message, callback = null) {
     document.getElementById("modal-message").textContent = message;
     modalCallback = callback;
     document.getElementById("confirm-modal").style.display = "flex";
@@ -231,9 +271,6 @@ function closeModal() {
     modalCallback = null;
 }
 
-/**
- * Attach modal button actions
- */
 document.addEventListener("DOMContentLoaded", () => {
     const cancel = document.getElementById("modal-cancel");
     const confirm = document.getElementById("modal-confirm");
