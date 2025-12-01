@@ -62,6 +62,8 @@ function loadContactDetails(index) {
     const safeEmail = sanitize(contact.email);
 
     container.innerHTML = `
+         <img src="${contact.avatar || 'avatar-default.svg'}" alt="Profile" class="${ contact.avatar ? 'contact-avatar' : 'contact-avatar default-avatar' }"">
+
         <header><strong>${sanitize(contact.name)}</strong></header>
 
         <p>
@@ -158,6 +160,22 @@ function setupForm(editIndex) {
     validateForm();
 
 
+    const avatarInput = document.getElementById("avatar");
+    let avatarData = editIndex !== null ? getContacts()[editIndex].avatar : "";
+
+    // Read file when selected
+    avatarInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            avatarData = reader.result; // Base64 string is ready immediately
+        };
+        reader.readAsDataURL(file);
+    });
+
+
     /**
      * FORM SUBMISSION
      */
@@ -170,6 +188,7 @@ function setupForm(editIndex) {
             phone: sanitize(document.getElementById("phone").value.trim()),
             email: sanitize(document.getElementById("email").value.trim()),
             favorite: editingContact ? editingContact.favorite : false,
+            avatar: avatarData
         };
 
         const contacts = getContacts();
@@ -236,7 +255,10 @@ function loadContactsList() {
         const card = document.createElement("div");
         card.className = "contact-card";
         card.innerHTML = `
-            <p id="contact-name"><strong>${sanitize(contact.name)}</strong></p>
+            <div class="contact-name-container">
+                <img src="${contact.avatar || 'avatar-default.svg'}" alt="Profile" class="${ contact.avatar ? 'contact-avatar' : 'contact-avatar default-avatar' }">
+                <p id="contact-name"><strong>${sanitize(contact.name)}</strong></p>
+            </div>
             <div class="contact-card-actions">
                 <button class="icon-btn" data-action="view"><i class="icon-eye"></i></button>
                 <button class="icon-btn" data-action="edit"><i class="icon-pencil"></i></button>
