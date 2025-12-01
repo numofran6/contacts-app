@@ -30,11 +30,19 @@ function sanitize(text) {
  */
 function getSortedContacts(search = "") {
     const query = search.toLowerCase();
-    return getContacts()
+    let contacts = getContacts()
         .filter(c => c.name.toLowerCase().includes(query))
         .sort((a, b) => a.name.localeCompare(b.name));
+
+    const showFavoritesOnly = document.getElementById("show-favorites")?.checked;
+    if (showFavoritesOnly) {
+        contacts = contacts.filter(c => c.favorite);
+    }
+
+    return contacts;
 }
 
+document.getElementById("show-favorites")?.addEventListener("change", loadContactsList);
 
 /**
  * VIEW SINGLE CONTACT PAGE
@@ -160,7 +168,8 @@ function setupForm(editIndex) {
         const newContact = {
             name: sanitize(document.getElementById("name").value.trim()),
             phone: sanitize(document.getElementById("phone").value.trim()),
-            email: sanitize(document.getElementById("email").value.trim())
+            email: sanitize(document.getElementById("email").value.trim()),
+            favorite: editingContact ? editingContact.favorite : false,
         };
 
         const contacts = getContacts();
@@ -232,6 +241,9 @@ function loadContactsList() {
                 <button class="icon-btn" data-action="view"><i class="icon-eye"></i></button>
                 <button class="icon-btn" data-action="edit"><i class="icon-pencil"></i></button>
                 <button class="icon-btn" data-action="delete"><i class="icon-trash"></i></button>
+                <button class="icon-btn favorite-btn" data-action="favorite">
+                    <i class="${contact.favorite ? 'icon-star-filled' : 'icon-star'}"></i>
+                </button>
             </div>
         `;
 
@@ -243,6 +255,12 @@ function loadContactsList() {
 
         card.querySelector('[data-action="delete"]').onclick = () =>
             deleteContact(actualIndex);
+
+        card.querySelector('[data-action="favorite"]').onclick = () => {
+            contact.favorite = !contact.favorite;
+            saveContacts(contacts);
+            loadContactsList();
+        };
 
         list.appendChild(card);
     });

@@ -32,12 +32,18 @@
         oninput="loadContactsList()"
       >
 
+      <div class="show-favorites">
+        <label>
+          <input type="checkbox" id="show-favorites"> <span>Show Favorites Only</span>
+        </label>
+      </div>
+
       <!-- Container where contacts will be rendered dynamically -->
       <div id="contacts-list"></div>
 
       <!-- Message shown when no contacts exist -->
       <div id="empty-message">
-        No contacts match this search query 😞
+        No contacts matched 😞
       </div>
 
       <!-- Pagination buttons (generated dynamically) -->
