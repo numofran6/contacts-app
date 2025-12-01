@@ -283,6 +283,15 @@ input:focus-within {
   transform: translateY(3px);
 }
 
+#contact-details a {
+  color: rgb(0, 112, 215);
+  transition: all 0.2s ease-in-out;
+}
+
+#contact-details a:hover {
+  color: rgb(93, 0, 215);;
+}
+
 
 /* ----------------------------------------------------
    FORM SCREEN STYLING

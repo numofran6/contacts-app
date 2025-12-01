@@ -49,12 +49,29 @@ function loadContactDetails(index) {
         return;
     }
 
+    // Clean values used inside href attributes
+    const safePhone = sanitize(contact.phone).replace(/[^0-9+]/g, ""); 
+    const safeEmail = sanitize(contact.email);
+
     container.innerHTML = `
         <header><strong>${sanitize(contact.name)}</strong></header>
-        <p><i class="icon-phone"></i> <span>${sanitize(contact.phone)}</span></p>
-        <p><i class="icon-envelope"></i> <span>${sanitize(contact.email)}</span></p>
+
+        <p>
+            <i class="icon-phone"></i>
+            <a href="tel:${safePhone}">
+                ${sanitize(contact.phone)}
+            </a>
+        </p>
+
+        <p>
+            <i class="icon-envelope"></i>
+            <a href="mailto:${safeEmail}">
+                ${sanitize(contact.email)}
+            </a>
+        </p>
     `;
 }
+
 
 
 /**
