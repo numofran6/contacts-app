@@ -279,6 +279,10 @@ input:not([type="checkbox"]):not([type="file"]):focus-within {
 }
 
 .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
   margin-top: 1rem;
 }
 
@@ -291,9 +295,27 @@ input:not([type="checkbox"]):not([type="file"]):focus-within {
 }
 
 .show-favorites input {
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
 }
+
+.sort-btn,
+.show-favorites {
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+
+  transition: 0.2s all ease-in-out;
+  cursor: pointer;
+}
+
+.sort-btn:hover,
+.show-favorites:hover {
+  background: #ddd;
+}
+
 
 /* ----------------------------------------------------
    VIEW CONTACT SCREEN

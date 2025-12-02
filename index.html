@@ -33,9 +33,15 @@
       >
 
       <div class="header-actions">
+        <!-- Show Only Favorites -->
         <label class="show-favorites">
           <input type="checkbox" id="show-favorites"> <span>Show Favorites Only</span>
         </label>
+
+        <!-- Sorting Button -->
+        <button id="sort-btn" class="sort-btn" onclick="toggleSortOrder()">
+          ⬇ Sort: A–Z
+        </button>
       </div>
 
       <!-- Container where contacts will be rendered dynamically -->

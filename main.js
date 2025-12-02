@@ -28,11 +28,17 @@ function sanitize(text) {
 /**
  * SORT CONTACTS ALPHABETICALLY
  */
+let sortAscending = true;
+
 function getSortedContacts(search = "") {
     const query = search.toLowerCase();
     let contacts = getContacts()
         .filter(c => c.name.toLowerCase().includes(query))
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => {
+            return sortAscending
+                ? a.name.localeCompare(b.name)
+                : b.name.localeCompare(a.name);
+        });
 
     const showFavoritesOnly = document.getElementById("show-favorites")?.checked;
     if (showFavoritesOnly) {
@@ -40,6 +46,13 @@ function getSortedContacts(search = "") {
     }
 
     return contacts;
+}
+function toggleSortOrder() {
+    sortAscending = !sortAscending;
+    const btn = document.getElementById("sort-btn");
+    btn.textContent = sortAscending ? "⬇ Sort: A–Z" : "⬆ Sort: Z–A";
+
+    loadContactsList();
 }
 
 document.getElementById("show-favorites")?.addEventListener("change", loadContactsList);
