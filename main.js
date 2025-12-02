@@ -242,15 +242,42 @@ function setupForm(editIndex) {
 let currentPage = 1;
 const ITEMS_PER_PAGE = 5;
 
+function updateFavoriteToggleState() {
+    const checkbox = document.getElementById("show-favorites");
+    const contacts = getContacts();
+
+    const hasFavorites = contacts.some(c => c.favorite);
+
+    checkbox.disabled = !hasFavorites;
+
+    // If disabled, also uncheck the box to avoid stuck filtering
+    if (!hasFavorites) {
+        checkbox.checked = false;
+    }
+}
+
 function loadContactsList() {
     const list = document.getElementById("contacts-list");
     const empty = document.getElementById("empty-message");
     const searchInput = document.getElementById("search-input");
     const search = searchInput ? searchInput.value : "";
 
+    const allContacts = getContacts(); 
     const contacts = getSortedContacts(search);
 
+    updateFavoriteToggleState();
+
     list.innerHTML = "";
+
+    if (allContacts.length === 0) {
+        empty.style.display = "block";
+        list.style.display = "none";
+        document.getElementById("pagination").style.display = "none";
+        document.getElementById("header-actions").style.display = "none";
+        return;
+    }
+
+    document.getElementById("header-actions").style.display = "flex";
 
     if (contacts.length === 0) {
         empty.style.display = "block";
@@ -259,8 +286,6 @@ function loadContactsList() {
         return;
     }
 
-    empty.style.display = "none";
-    list.style.display = "block";
 
     const totalPages = Math.ceil(contacts.length / ITEMS_PER_PAGE);
     currentPage = Math.min(currentPage, totalPages);
@@ -269,13 +294,18 @@ function loadContactsList() {
     const pageItems = contacts.slice(start, start + ITEMS_PER_PAGE);
 
     pageItems.forEach((contact, offset) => {
-        const actualIndex = start + offset;
+        const fullContacts = getContacts();
+
+        // Match by unique fields (email + phone)
+        const realIndex = fullContacts.findIndex(
+            c => c.email === contact.email && c.phone === contact.phone
+        );
 
         const card = document.createElement("div");
         card.className = "contact-card";
         card.innerHTML = `
             <div class="contact-name-container">
-                <img src="${contact.avatar || '/images/avatar-default.svg'}" alt="Profile" class="${ contact.avatar ? 'contact-avatar' : 'contact-avatar default-avatar' }">
+                <img src="${contact.avatar || '/images/avatar-default.svg'}" class="${contact.avatar ? 'contact-avatar' : 'contact-avatar default-avatar'}">
                 <p id="contact-name"><strong>${sanitize(contact.name)}</strong></p>
             </div>
             <div class="contact-card-actions">
@@ -289,17 +319,17 @@ function loadContactsList() {
         `;
 
         card.querySelector('[data-action="view"]').onclick = () =>
-            (location.href = `view.html?id=${actualIndex}`);
+            (location.href = `view.html?id=${realIndex}`);
 
         card.querySelector('[data-action="edit"]').onclick = () =>
-            (location.href = `form.html?edit=${actualIndex}`);
+            (location.href = `form.html?edit=${realIndex}`);
 
         card.querySelector('[data-action="delete"]').onclick = () =>
-            deleteContact(actualIndex);
+            deleteContact(realIndex);
 
         card.querySelector('[data-action="favorite"]').onclick = () => {
-            contact.favorite = !contact.favorite;
-            saveContacts(contacts);
+            fullContacts[realIndex].favorite = !fullContacts[realIndex].favorite;
+            saveContacts(fullContacts);
             loadContactsList();
         };
 
