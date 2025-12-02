@@ -130,6 +130,8 @@ header {
 
 /* Trash icon sits slightly lower for visual alignment */
 .btn .icon-trash {
+  display: inline-block;
+
   transform: translateY(6px);
 }
 
@@ -276,22 +278,21 @@ input:not([type="checkbox"]):not([type="file"]):focus-within {
   mask-image: linear-gradient(to bottom, black 94%, transparent 100%);
 }
 
-.show-favorites {
-  display: flex;
-  align-items: center;
-
+.header-actions {
   margin-top: 1rem;
 }
 
-.show-favorites label {
+.show-favorites {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
   font-size: 13px;
 }
 
 .show-favorites input {
   width: 15px;
   height: 15px;
-
-  transform: translateY(2px);
 }
 
 /* ----------------------------------------------------
