@@ -171,6 +171,11 @@ header {
   background: #5d656c;
 }
 
+.btn:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 
 /* ----------------------------------------------------
    INPUT FIELDS
@@ -357,6 +362,10 @@ input:not([type="checkbox"]):not([type="file"]):focus-within {
   color: #dc3545;
 }
 
+.sub-text {
+  font-size: 13px;
+  font-style: italic;
+}
 
 /* ----------------------------------------------------
    ACTION BUTTONS UNDER FORM

@@ -62,7 +62,7 @@ function loadContactDetails(index) {
     const safeEmail = sanitize(contact.email);
 
     container.innerHTML = `
-         <img src="${contact.avatar || 'avatar-default.svg'}" alt="Profile" class="${ contact.avatar ? 'contact-avatar' : 'contact-avatar default-avatar' }"">
+         <img src="${contact.avatar || '/images/avatar-default.svg'}" alt="Profile" class="${ contact.avatar ? 'contact-avatar' : 'contact-avatar default-avatar' }"">
 
         <header><strong>${sanitize(contact.name)}</strong></header>
 
@@ -163,14 +163,20 @@ function setupForm(editIndex) {
     const avatarInput = document.getElementById("avatar");
     let avatarData = editIndex !== null ? getContacts()[editIndex].avatar : "";
 
-    // Read file when selected
-    avatarInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
+    avatarInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
         if (!file) return;
+
+        const MAX_SIZE = 1 * 1024 * 1024; // 1MB in bytes
+        if (file.size > MAX_SIZE) {
+            showNoticeModal('File is too large. Maximum allowed size is 1MB.')
+            event.target.value = "";
+            return;
+        }
 
         const reader = new FileReader();
         reader.onload = () => {
-            avatarData = reader.result; // Base64 string is ready immediately
+            avatarData = reader.result; // Base64 string
         };
         reader.readAsDataURL(file);
     });
@@ -256,7 +262,7 @@ function loadContactsList() {
         card.className = "contact-card";
         card.innerHTML = `
             <div class="contact-name-container">
-                <img src="${contact.avatar || 'avatar-default.svg'}" alt="Profile" class="${ contact.avatar ? 'contact-avatar' : 'contact-avatar default-avatar' }">
+                <img src="${contact.avatar || '/images/avatar-default.svg'}" alt="Profile" class="${ contact.avatar ? 'contact-avatar' : 'contact-avatar default-avatar' }">
                 <p id="contact-name"><strong>${sanitize(contact.name)}</strong></p>
             </div>
             <div class="contact-card-actions">
@@ -321,6 +327,13 @@ function showModal(message, callback = null) {
     document.getElementById("modal-message").textContent = message;
     modalCallback = callback;
     document.getElementById("confirm-modal").style.display = "flex";
+}
+
+function showNoticeModal(message, callback = null) {
+    document.getElementById("modal-message").textContent = message;
+    modalCallback = callback;
+    document.getElementById("confirm-modal").style.display = "flex";
+    document.querySelector('.modal-actions #modal-confirm').style.display = 'none';
 }
 
 function closeModal() {
