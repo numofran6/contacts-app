@@ -3,7 +3,7 @@
 ## 1. Introduction
 
 ### 1.1 Product Overview
-The **Contacts Management App** is a lightweight, browser-based tool that allows users to create, store, manage, and organize personal or professional contact information.  
+The **Contacts Management App** is a lightweight, web application that allows users to create, store, manage, and organize personal or professional contact information.  
 The application uses the browser’s **localStorage** to securely store data on the user’s device without requiring a server or external database.
 
 It is designed to be simple, intuitive, and accessible on both desktop and mobile devices.
